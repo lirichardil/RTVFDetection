@@ -1,0 +1,49 @@
+# ---------------------------------------------------------------
+# requirements.txt  —  pip fallback for rtvf-detection project
+#
+# IMPORTANT: prefer environment.yml + conda for GPU environments.
+# If using pip only, install torch FIRST from the PyTorch index,
+# then install this file:
+#
+#   pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 \
+#       --index-url https://download.pytorch.org/whl/cu113
+#   pip install -r requirements.txt
+#
+# Why torch 1.12.1?
+#   deeplabcut==2.3.6 declares torch<=1.12 in install_requires.
+#   torch 2.x violates that bound → pip resolution fails.
+# ---------------------------------------------------------------
+
+# TF 2.10.0 (2.10.1 was never published; 'tensorflow' auto-enables GPU)
+tensorflow==2.10.0
+keras==2.10.0
+
+# Protobuf must be < 3.20 for TF 2.10
+protobuf==3.19.6
+
+# DeepLabCut — paper version
+deeplabcut==2.3.6
+
+# Computer vision
+opencv-python==4.8.1.78
+
+# PyTorch — install separately via PyTorch index BEFORE this file (see above)
+# torch==1.12.1
+# torchvision==0.13.1
+
+# Scientific stack
+numpy==1.23.5
+pandas>=1.5,<2.0
+scipy>=1.9
+matplotlib>=3.6
+scikit-learn>=1.1
+
+# Utilities
+Pillow>=9.0
+tqdm>=4.64
+PyYAML>=6.0
+nvidia-ml-py>=11.5
+
+# Testing
+pytest>=7.4
+pytest-cov>=4.1

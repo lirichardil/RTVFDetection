@@ -1,0 +1,63 @@
+name: rtvf-detection
+channels:
+  - pytorch        # provides torch + torchvision binaries with bundled CUDA
+  - nvidia
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.9
+  - pip
+
+  # ── PyTorch via conda ────────────────────────────────────────────────────────
+  # deeplabcut==2.3.6 declares torch<=1.12 in its install_requires.
+  # torch 2.0.1 violates that constraint → pip resolver fails.
+  # torch 1.12.1 is the highest version that satisfies DLC 2.3.6.
+  # torchvision 0.13.1 is the matching release for torch 1.12.1.
+  # The paper uses TF/Keras as the training backend; torch is only used
+  # for optional inference optimisation, so 1.12.1 is fully sufficient.
+  - pytorch=1.12.1
+  - torchvision=0.13.1
+  # TF 2.10 official docs specify cudatoolkit=11.2 + cudnn=8.1.
+  # conda-forge's cudatoolkit=11.2 bundles libcublas/libcublasLt inside the
+  # package itself; cudatoolkit=11.3 splits them into a separate libcublas
+  # package, so libcublas.so.11 is missing and TF GPU init fails.
+  # torch via conda brings its own CUDA runtime, so cudatoolkit here is only
+  # for TF and other pip packages.
+  - cudatoolkit=11.2
+  - cudnn=8.1.0        # exact pin matches TF 2.10 requirement (libcudnn.so.8)
+
+  # ── Scientific stack ─────────────────────────────────────────────────────────
+  - numpy=1.23.5        # satisfies TF 2.10 AND torch 1.12
+  - pandas>=1.5,<2.0
+  - scipy>=1.9
+  - matplotlib>=3.6
+  - scikit-learn>=1.1
+  - pillow>=9.0
+  - tqdm>=4.64
+  - pyyaml>=6.0
+
+  # ── pip: TensorFlow + DeepLabCut only ───────────────────────────────────────
+  # torch is absent here — already installed by conda above.
+  - pip:
+    # TF 2.10.0 is the correct release (2.10.1 was never published).
+    # 'tensorflow' auto-enables GPU; tensorflow-gpu is a deprecated alias.
+    - tensorflow==2.10.0
+    - keras==2.10.0
+
+    # Pin protobuf BEFORE deeplabcut resolves it.
+    # TF 2.10 requires protobuf<3.20; without this pin pip may choose 4.x.
+    - protobuf==3.19.6
+
+    # Computer vision
+    - opencv-python==4.8.1.78
+
+    # DeepLabCut — exact paper version (Koivu et al., Section 2.2)
+    - deeplabcut==2.3.6
+
+    # Utilities
+    - pytest>=7.4
+    - pytest-cov>=4.1
+    # pynvml is deprecated upstream; nvidia-ml-py is the maintained fork.
+    # Both expose the same Python API (import pynvml), so no code changes needed.
+    - nvidia-ml-py>=11.5
